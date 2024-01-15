@@ -1,0 +1,5 @@
+SHR, SHR
+JKD, SCR & SHR
+MGP, SCR & SHR & !WOX
+SCR, (JKD & SCR & SHR) | (SCR & SHR & !MGP)
+WOX, (SCR & SHR & WOX) | (SCR & SHR & !MGP)

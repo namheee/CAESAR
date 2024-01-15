@@ -1,0 +1,18 @@
+CH,        CH
+LIF,       LIF
+PD,        PD
+
+Esrrb,     Nanog & !Tcf3
+Klf2,      Klf4 | Esrrb
+Klf4,      Klf2 & Stat3
+MEKERK,    !PD
+Nanog,     !MEKERK & Tbx3 | Sox2 | Sall4
+Oct4,      Tfcp2l1 | Tcf3 | Klf4
+Sall4,     Oct4 & Sox2 & !Tcf3
+Sox2,      Tcf3 | Tbx3 | Sall4
+Stat3,     LIF
+Tbx3,      Sall4 & !Tcf3 | Klf4
+Tcf3,      !CH & Klf2 & !MEKERK & Oct4 & Sox2
+Tfcp2l1,   Stat3 & !Tcf3 | Klf2
+
+Gbx2,      Stat3

@@ -1,0 +1,24 @@
+Ag,           Ag
+CD40L,        CD40L
+ILminus2,     ILminus2
+ILminus21,    ILminus21
+ILminus4,     ILminus4
+
+BCR,          Ag
+Bach2,        !Blimp1 & Pax5
+Bcl6,         Bcl6 & !Blimp1 & !ERK & !Irf4 & Pax5 | !Blimp1 & !ERK & !Irf4 & STAT6 | !Blimp1 & !ERK & !Irf4 & STAT5
+Blimp1,       !Bach2 & !Bcl6 & !Pax5 & STAT3 | !Bach2 & !Bcl6 & Irf4 & !Pax5 | !Bach2 & !Bcl6 & ERK & !Pax5
+CD40,         CD40L
+ERK,          BCR
+ILminus21R,   ILminus21
+ILminus2R,    ILminus2
+ILminus4R,    ILminus4
+Irf4,         !Bcl6 & Irf4 | !Bcl6 & Blimp1 | NFminuskB
+NFminuskB,    CD40
+Pax5,         !Blimp1 & !ERK & Pax5 | !Blimp1 & !ERK & !Irf4
+STAT3,        ILminus21R
+STAT5,        ILminus2R
+STAT6,        ILminus4R
+
+AID,          !Blimp1 & NFminuskB & Pax5 | !Blimp1 & STAT6
+XBP1,         Blimp1 & !Pax5
