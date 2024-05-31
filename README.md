@@ -1,6 +1,8 @@
 # CAESAR
 Canalizing kernel for cell fate determination
 
+We used the pyboolnet (https://github.com/hklarner/pyboolnet) to import bnet file.
+
 ### Python:
 ```python
 networkName = 'mESC_Network_2019'
