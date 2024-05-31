@@ -2,14 +2,15 @@
 """
 Created on Tue Mar 15 13:39:10 2022
 
-@author: NamheeKim
+@author: Namhee Kim
 """
 
 from collections import defaultdict, Counter
 import numpy as np
 import itertools
 import networkx as nx
-from modules.expanded_network import PlayWithExpNet, to_sif, form_network, Get_expanded_network, update_single_DOI
+
+from .modules.expanded_network import PlayWithExpNet, to_sif, form_network, Get_expanded_network, update_single_DOI
 
 #%%
 
@@ -54,19 +55,20 @@ def pert_str2dict_list(pert_i):
     return pert_dict
     
     
-def is_ssc(cycle_list):
-    # is self-stabilizing coponent
+def is_ssm(cycle_list):
+    # is self-stabilizing motif
     cnodes = [x for x in cycle_list if '&' in x] # composite node
     if len(cnodes) == 0:
         return True
     else:
-        ssc = []
+        ssm = []
         for cnode in cnodes:     
             if (set(cnode.split('&'))-set(cycle_list) == set()):
-                ssc.append(True)
+                ssm.append(True)
             else:
-                ssc.append(False)
-        return np.all(ssc)
+                ssm.append(False)
+        return np.all(ssm)
+
 
 def BLDOI(networkname):
     # from expanded network & change node names
@@ -90,7 +92,7 @@ def BLDOI(networkname):
     # initialization
     TDOI_BFS, flagged, potential = {}, {}, {} #Domain of Influence
 
-    # first step, search through DOI of single node
+    # in the first step, search through DOI of single node
     update_single_DOI(G_expanded, singleDOI_filename, TDOI_BFS, flagged, potential)
     
     TDOI_Dict = defaultdict(list)
@@ -151,7 +153,7 @@ def remained_(reduced_bnet, reduced_num, node_fbl, pert_str, init_str_p):
  
     try:
         enet, TDOI_Dict = BLDOI(networkname)
-        # to_sif (write network structure file)
+        # write network structure file
         # to_sif(enet, file_prefix='./reduced/reduced_bnet_'+pert_str+'.bnet')
 
         remained_fbl_dict = defaultdict(dict)
@@ -165,32 +167,33 @@ def remained_(reduced_bnet, reduced_num, node_fbl, pert_str, init_str_p):
             subnodes = [x for x in enet.nodes if set([y[1:] if '~' in y else y for y in x.split('&')])&set(fbl1) != set()]    
             enet_sub_cycle = enet.subgraph(subnodes)    
             
-            ssc_cycle_stabilized = False
-            is_oscillating = False
+            ssm_cycle_stabilized = False
+            is_notConsidered = False
             for cycle1 in nx.simple_cycles(enet_sub_cycle):    
                 if len(set(fbl1) - set([n[1:] if ('~' in n) else n for n in set(itertools.chain(*[n.split('&') for n in cycle1]))])) != 0:
                     continue
                 cycle1 = tuple(max(nx.strongly_connected_components(enet.subgraph(set(itertools.chain(*[x.split('&') for x in cycle1])) | set(cycle1))),key=len)) # to include maximal one
+                
                 composite = [x for x in cycle1 if '&' in x]              
                 non_composite = [x for x in cycle1 if '&' not in x] 
-                if is_ssc(cycle1):
-                    remained_fbl_dict_info[fbl1]['ssc'].append(tuple(sorted(cycle1)))
+                if is_ssm(cycle1):
+                    remained_fbl_dict_info[fbl1]['ssm'].append(tuple(sorted(cycle1)))
 
                     if len(composite) != 0:     
                         if np.all([np.all([is_init_satisfied(enet, c2, TDOI_Dict, init_str_p) for c2 in c1.split('&')]) for c1 in composite]):
-                            ssc_cycle_stabilized = True
-                            remained_fbl_dict[fbl1]['ssc'].append(tuple(sorted(cycle1)))           
+                            ssm_cycle_stabilized = True
+                            remained_fbl_dict[fbl1]['ssm'].append(tuple(sorted(cycle1)))           
                         else: continue
                     else: 
                         if is_init_satisfied(enet, non_composite[0], TDOI_Dict, init_str_p):
-                            ssc_cycle_stabilized = True
-                            remained_fbl_dict[fbl1]['ssc'].append(tuple(sorted(cycle1)))
+                            ssm_cycle_stabilized = True
+                            remained_fbl_dict[fbl1]['ssm'].append(tuple(sorted(cycle1)))
                         else: continue
                     
                 elif (2 in list(Counter([n[1:] if '~' in n else n for n in set(itertools.chain(*[n.split('&') for n in cycle1]))]).values())): 
-                    is_oscillating = True
+                    is_notConsidered = True # it could be either oscillating components or nothing (neither ssm nor csm)
                     continue  
-                
+
                 else: #csm
                     remained_fbl_dict_info[fbl1]['csm'].append(tuple(sorted(cycle1)))
                     composite = [x for x in cycle1 if '&' in x]              
@@ -199,15 +202,15 @@ def remained_(reduced_bnet, reduced_num, node_fbl, pert_str, init_str_p):
                     else:
                         continue            
 
-            remained_fbl_dict[fbl1]['ssc'] = list(set(remained_fbl_dict[fbl1]['ssc']))
+            remained_fbl_dict[fbl1]['ssm'] = list(set(remained_fbl_dict[fbl1]['ssm']))
             remained_fbl_dict[fbl1]['csm'] = list(set(remained_fbl_dict[fbl1]['csm']))
-            remained_fbl_dict_info[fbl1]['ssc'] = list(set(remained_fbl_dict_info[fbl1]['ssc']))
+            remained_fbl_dict_info[fbl1]['ssm'] = list(set(remained_fbl_dict_info[fbl1]['ssm']))
             remained_fbl_dict_info[fbl1]['csm'] = list(set(remained_fbl_dict_info[fbl1]['csm']))               
-            remained_fbl_dict[fbl1]['is_oscillating'].append(is_oscillating)
-            remained_fbl_dict[fbl1]['ssc_stabilized'].append(ssc_cycle_stabilized)
+            remained_fbl_dict[fbl1]['is_notConsidered'].append(is_notConsidered)
+            remained_fbl_dict[fbl1]['ssm_stabilized'].append(ssm_cycle_stabilized)
             
-        remained_fbl_dict_info = {x:y for x,y in remained_fbl_dict_info.items() if np.any([set(y['ssc']) != set(), set(y['csm']) != set()])}
-        remained_fbl_dict = {x:y for x,y in remained_fbl_dict.items() if np.any([set(y['ssc']) != set(), set(y['csm']) != set()])}
+        remained_fbl_dict_info = {x:y for x,y in remained_fbl_dict_info.items() if np.any([set(y['ssm']) != set(), set(y['csm']) != set()])}
+        remained_fbl_dict = {x:y for x,y in remained_fbl_dict.items() if np.any([set(y['ssm']) != set(), set(y['csm']) != set()])}
         return networkname, remained_fbl_dict, remained_fbl_dict_info, False, TDOI_Dict
     
     except KeyError:
