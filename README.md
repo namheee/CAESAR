@@ -1,6 +1,7 @@
 # CAESAR
 Canalizing kernel for cell fate determination
 
+## Notes
 + We used the pyboolnet (https://github.com/hklarner/pyboolnet) to import bnet file.
 + Some example networks are provided in the `network` directory.
 + This algorithm considers only point attractors as inputs.
@@ -8,6 +9,7 @@ Canalizing kernel for cell fate determination
 **Reference paper:** Canalizing kernel for cell fate determination
 https://doi.org/10.1093/bib/bbae406
 
+## Example
 ### Python > 3.10.8
 ```python
 networkName = 'mESC_Network_2019'
