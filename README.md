@@ -10,7 +10,7 @@ Canalizing kernel for cell fate determination
 https://doi.org/10.1093/bib/bbae406
 
 ## Example
-### Python > 3.10.8
+It works with Python > 3.10.8.
 ```python
 networkName = 'mESC_Network_2019'
 undesired = '0010011010001001'
